@@ -1,15 +1,23 @@
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
 import { start, stop, getBotStatus } from "./artifacts/wa-bot/index.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-let status = "OFFLINE";
-
 app.use(express.json());
 app.use(express.static("public"));
+
+// ================================
+// HEALTH CHECK
+// ================================
+
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
+
+// ================================
+// START BOT
+// ================================
 
 app.post("/api/start", async (req, res) => {
   try {
@@ -22,7 +30,7 @@ app.post("/api/start", async (req, res) => {
       message: "Bot starting...",
     });
   } catch (error) {
-    console.error("Start bot error:", error);
+    console.error("❌ Start bot error:", error);
 
     res.status(500).json({
       success: false,
@@ -30,6 +38,10 @@ app.post("/api/start", async (req, res) => {
     });
   }
 });
+
+// ================================
+// STOP BOT
+// ================================
 
 app.post("/api/stop", async (req, res) => {
   try {
@@ -42,7 +54,7 @@ app.post("/api/stop", async (req, res) => {
       message: "Bot stopped",
     });
   } catch (error) {
-    console.error("Stop bot error:", error);
+    console.error("❌ Stop bot error:", error);
 
     res.status(500).json({
       success: false,
@@ -51,10 +63,28 @@ app.post("/api/stop", async (req, res) => {
   }
 });
 
+// ================================
+// BOT STATUS
+// ================================
+
 app.get("/api/status", (req, res) => {
-  res.json(getBotStatus());
+  try {
+    res.json(getBotStatus());
+  } catch (error) {
+    console.error("❌ Status error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
-app.listen(PORT, () => {
+// ================================
+// START SERVER
+// ================================
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🌐 Dashboard running on port ${PORT}`);
+  console.log(`❤️ Health check: /healthz`);
 });
