@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revealed Images — Mekyy Bot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">📸</div>
+
+          <div>
+            <h1>Revealed Images</h1>
+            <p>Images revealed by Mekyy Bot</p>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a href="index.html">Dashboard</a>
+          <a href="revealed.html" class="active">Revealed</a>
+          <a href="stickers.html">Stickers</a>
+          <a href="upscale.html">Upscale</a>
+        </nav>
+      </header>
+
+      <section class="card">
+        <div class="gallery-header">
+          <div>
+            <h2>📸 Saved Reveals</h2>
+            <p>Images saved from reveal commands.</p>
+          </div>
+
+          <a href="index.html" class="back"> ← Dashboard </a>
+        </div>
+
+        <div id="gallery" class="gallery">
+          <div class="empty">
+            <div class="empty-icon">📸</div>
+
+            <div>No revealed images yet.</div>
+
+            <small> Saved images will appear here. </small>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      async function loadRevealed() {
+        const gallery = document.getElementById("gallery");
+
+        try {
+          const response = await fetch("/api/revealed?t=" + Date.now());
+
+          const files = await response.json();
+
+          if (!files.length) {
+            gallery.innerHTML = `
+            <div class="empty">
+              <div class="empty-icon">📸</div>
+              <div>No revealed images yet.</div>
+              <small>Saved images will appear here.</small>
+            </div>
+          `;
+
+            return;
+          }
+
+          gallery.innerHTML = files
+            .map(
+              (file) => `
+
+            <div class="media-card">
+
+              <img
+                src="${file.url}"
+                alt="${file.name}"
+                loading="lazy"
+              >
+
+              <div class="media-info">
+
+                <div class="media-name">
+                  ${file.name}
+                </div>
+
+                <div class="media-type">
+                  Revealed Image
+                </div>
+
+              </div>
+
+            </div>
+
+          `,
+            )
+            .join("");
+        } catch (error) {
+          console.error("Gallery error:", error);
+        }
+      }
+
+      loadRevealed();
+
+      // Auto refresh setiap 5 saat
+      setInterval(loadRevealed, 5000);
+    </script>
+  </body>
+</html>

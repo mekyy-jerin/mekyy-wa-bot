@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Mekyy Bot Dashboard</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+      <header class="header">
+        <div class="brand">
+          <div class="logo">🤖</div>
+
+          <div>
+            <h1>Mekyy Bot</h1>
+            <p>WhatsApp Bot Control Panel</p>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a href="index.html" class="active"> Dashboard </a>
+
+          <a href="revealed.html"> Revealed </a>
+
+          <a href="stickers.html"> Stickers </a>
+
+          <a href="upscale.html"> Upscale </a>
+        </nav>
+      </header>
+
+      <!-- MAIN DASHBOARD -->
+      <section class="card">
+        <!-- STATUS -->
+        <div class="status-box">
+          <div class="status-left">
+            <span id="dot" class="dot offline"></span>
+
+            <div>
+              <div class="status-label">BOT STATUS</div>
+
+              <div id="status" class="status">Offline</div>
+            </div>
+          </div>
+
+          <div id="badge" class="badge">OFFLINE</div>
+        </div>
+
+        <!-- CONTROL BUTTONS -->
+        <div class="buttons">
+          <button id="startBtn" class="start" onclick="startBot()">
+            ▶ Start Bot
+          </button>
+
+          <button id="stopBtn" class="stop" onclick="stopBot()">
+            ■ Stop Bot
+          </button>
+        </div>
+
+        <!-- FEATURE CARDS -->
+        <div class="feature-grid">
+          <!-- REVEALED -->
+          <a href="revealed.html" class="feature">
+            <div class="feature-icon">📸</div>
+
+            <h3>Revealed Images</h3>
+
+            <p>Saved images revealed from WhatsApp.</p>
+
+            <span class="feature-link"> Open Gallery → </span>
+          </a>
+
+          <!-- STICKERS -->
+          <a href="stickers.html" class="feature">
+            <div class="feature-icon">🎨</div>
+
+            <h3>Sticker Gallery</h3>
+
+            <p>Brat, BratVid, SMeme and normal stickers.</p>
+
+            <span class="feature-link"> Open Gallery → </span>
+          </a>
+
+          <!-- UPSCALE -->
+          <a href="upscale.html" class="feature">
+            <div class="feature-icon">🔍</div>
+
+            <h3>Upscaled Images</h3>
+
+            <p>Saved images processed by the HD system.</p>
+
+            <span class="feature-link"> Open Gallery → </span>
+          </a>
+
+          <!-- STATISTICS -->
+          <div class="feature">
+            <div class="feature-icon">📊</div>
+
+            <h3>Bot Statistics</h3>
+
+            <p>Messages, commands and bot activity.</p>
+
+            <span class="coming"> Live </span>
+          </div>
+        </div>
+
+        <!-- UPTIME -->
+        <div class="uptime">
+          <div>
+            <small> 🕐 BOT UPTIME </small>
+
+            <strong id="uptime"> 00h 00m 00s </strong>
+          </div>
+
+          <span id="runningBadge" class="running"> ● Offline </span>
+        </div>
+
+          <!-- BOT STATISTICS -->
+          <div class="stats-panel">
+
+            <div class="stat-item">
+              <div class="stat-icon messages-icon">💬</div>
+              <div class="stat-info">
+                <span>MESSAGES</span>
+                <strong id="messageCount">0</strong>
+                <small>Total messages received</small>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon commands-icon">⚡</div>
+              <div class="stat-info">
+                <span>COMMANDS</span>
+                <strong id="commandCount">0</strong>
+                <small>Total commands used</small>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon groups-icon">👥</div>
+              <div class="stat-info">
+                <span>GROUPS</span>
+                <strong id="groupCount">0</strong>
+                <small>Groups the bot is in</small>
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- BOT GUIDE -->
+          <div class="bot-guide">
+
+            <div class="guide-icon">
+              🛡️
+            </div>
+
+            <div class="guide-content">
+
+              <div class="guide-title">
+                BOT GUIDE
+              </div>
+
+              <div class="guide-list">
+                <div>• <b>Start Bot</b> untuk sambungkan WhatsApp</div>
+                <div>• <b>Stop Bot</b> untuk matikan bot</div>
+                <div>• Jangan delete folder <code>auth</code> kalau nak kekalkan WhatsApp login</div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+      // ─────────────────────────────
+      // FORMAT UPTIME
+      // ─────────────────────────────
+
+      function formatUptime(seconds) {
+        if (!seconds || seconds <= 0) {
+          return "00h 00m 00s";
+        }
+
+        const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+
+        const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+
+        const s = String(seconds % 60).padStart(2, "0");
+
+        return `${h}h ${m}m ${s}s`;
+      }
+
+      // ─────────────────────────────
+      // UPDATE UPTIME
+      // ─────────────────────────────
+
+      function updateUptime(seconds) {
+        const uptime = document.getElementById("uptime");
+
+        uptime.textContent = formatUptime(seconds);
+      }
+
+      // ─────────────────────────────
+      // UPDATE STATISTICS
+      // ─────────────────────────────
+
+      function updateStats(stats) {
+        if (!stats) return;
+
+        const messages = document.getElementById("messages");
+
+        const commands = document.getElementById("commands");
+
+        const groups = document.getElementById("groups");
+
+        if (messages) {
+          messages.textContent = Number(stats.messages || 0).toLocaleString();
+        }
+
+        if (commands) {
+          commands.textContent = Number(stats.commands || 0).toLocaleString();
+        }
+
+        if (groups) {
+          groups.textContent = Number(stats.groups || 0).toLocaleString();
+        }
+      }
+
+      // ─────────────────────────────
+      // UPDATE BOT STATUS
+      // ─────────────────────────────
+
+      async function updateStatus() {
+        try {
+          const response = await fetch("/api/status?t=" + Date.now());
+
+          if (!response.ok) {
+            throw new Error("Status request failed");
+          }
+
+          const data = await response.json();
+
+          const status = document.getElementById("status");
+
+          const dot = document.getElementById("dot");
+
+          const badge = document.getElementById("badge");
+
+          const runningBadge = document.getElementById("runningBadge");
+
+          // ───────────────────────
+          // CONNECTED
+          // ───────────────────────
+
+          if (data.connected) {
+            status.textContent = "Connected to WhatsApp";
+
+            dot.className = "dot online";
+
+            badge.textContent = "CONNECTED";
+
+            runningBadge.textContent = "● Running";
+
+            runningBadge.className = "running online-text";
+          }
+
+          // ───────────────────────
+          // STARTING / RECONNECTING
+          // ───────────────────────
+          else if (data.running) {
+            status.textContent =
+              data.status === "reconnecting"
+                ? "Reconnecting..."
+                : "Starting...";
+
+            dot.className = "dot starting";
+
+            badge.textContent =
+              data.status === "reconnecting" ? "RECONNECTING" : "STARTING";
+
+            runningBadge.textContent =
+              data.status === "reconnecting" ? "● Reconnecting" : "● Starting";
+
+            runningBadge.className = "running starting-text";
+          }
+
+          // ───────────────────────
+          // OFFLINE
+          // ───────────────────────
+          else {
+            status.textContent = "Offline";
+
+            dot.className = "dot offline";
+
+            badge.textContent = "OFFLINE";
+
+            runningBadge.textContent = "● Offline";
+
+            runningBadge.className = "running";
+          }
+
+          // REAL BOT UPTIME
+          updateUptime(data.uptime || 0);
+
+          // STATISTICS
+          updateStats(data.stats);
+        } catch (error) {
+          console.error("Status error:", error);
+        }
+      }
+
+      // ─────────────────────────────
+      // START BOT
+      // ─────────────────────────────
+
+      async function startBot() {
+        const button = document.getElementById("startBtn");
+
+        button.disabled = true;
+
+        button.textContent = "Starting...";
+
+        try {
+          const response = await fetch("/api/start", {
+            method: "POST",
+          });
+
+          const data = await response.json();
+
+          console.log("Start:", data);
+        } catch (error) {
+          console.error("Start bot error:", error);
+        }
+
+        // Immediately update
+        updateStatus();
+
+        setTimeout(() => {
+          button.disabled = false;
+
+          button.textContent = "▶ Start Bot";
+
+          updateStatus();
+        }, 1500);
+      }
+
+      // ─────────────────────────────
+      // STOP BOT
+      // ─────────────────────────────
+
+      async function stopBot() {
+        const button = document.getElementById("stopBtn");
+
+        button.disabled = true;
+
+        button.textContent = "Stopping...";
+
+        try {
+          const response = await fetch("/api/stop", {
+            method: "POST",
+          });
+
+          const data = await response.json();
+
+          console.log("Stop:", data);
+        } catch (error) {
+          console.error("Stop bot error:", error);
+        }
+
+        updateStatus();
+
+        setTimeout(() => {
+          button.disabled = false;
+
+          button.textContent = "■ Stop Bot";
+
+          updateStatus();
+        }, 1500);
+      }
+
+      // ─────────────────────────────
+      // AUTO REFRESH
+      // ─────────────────────────────
+
+      setInterval(updateStatus, 2000);
+
+      // INITIAL LOAD
+      updateStatus();
+    </script>
+  </body>
+</html>
